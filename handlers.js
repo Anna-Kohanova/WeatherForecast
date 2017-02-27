@@ -8,12 +8,11 @@ function forecast(request, response){
     makeQuery(request,response, 'forecast');
 }
 function makeQuery(request,response, type) {
-    response.writeHead(200, {"Content-Type": "text/plain"});
     var query = url.parse(request.url, true).query;
     if(query.city!= undefined){
             var options = {
             host: 'api.openweathermap.org',
-            path: '/data/2.5/'+type+'?q=London,uk&APPID='+config.app.appid
+            path: '/data/2.5/'+type+'?q='+query.city+'&APPID='+config.app.appid
         };
         var callback = function(responseCallback) {
             var str='';
@@ -23,7 +22,7 @@ function makeQuery(request,response, type) {
 
             responseCallback.on('end', function () {
                 var weather = JSON.parse(str);
-                response.end("<html><head></head><body><p id='str'>"+str+"></p><script> console.log(JSON.parse(document.getElementById('str').innerHTML.substring(0,455))); </script></body></html>");
+                response.end("<html><head></head><body><p id='str' style='visibility:hidden'>"+str+"></p><div id='img'></div><script>var data = JSON.parse(document.getElementById('str').innerHTML.substring(0,document.getElementById('str').innerHTML.length-4)); document.getElementById('img').innerHTML='<img src=\"http://openweathermap.org/img/w/' + data.weather[0].icon + '.png\">'; console.log(data); </script></body></html>");
             });
         }
         http.request(options, callback).end(); 
