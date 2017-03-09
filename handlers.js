@@ -8,11 +8,10 @@ function forecast(request, response){
     makeQuery(request,response, 'forecast');
 }
 function makeQuery(request,response, type) {
-    var query = url.parse(request.url, true).query;
-    if(query.city!= undefined){
+    var city = request.params.city;
             var options = {
             host: 'api.openweathermap.org',
-            path: '/data/2.5/'+type+'?q='+query.city+'&APPID='+config.app.appid
+            path: '/data/2.5/'+type+'?q='+city+'&APPID='+config.app.appid
         };
         var callback = function(responseCallback) {
             var str='';
@@ -26,11 +25,6 @@ function makeQuery(request,response, type) {
             });
         }
         http.request(options, callback).end(); 
-        }
-    else{
-        response.write("Sorry, u dnt send a city=(");
-        response.end();
-    }
 }
 
 

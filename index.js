@@ -1,11 +1,16 @@
-var server = require('./server');
-var router = require("./router");
-var handlers = require("./handlers");
+var express    = require('express');    
+var app        = express();                 
+var bodyParser = require('body-parser');
 
-var handle = {}
-handle["/"] = handlers.current;
-handle["/weather/current"] = handlers.current;
-handle["/weather/forecast"] = handlers.forecast;
+const localConfig = require('./config');
 
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 
-server.start(router.route, handle);
+var current = require('./router/current');
+var forecast = require('./router/forecast');
+
+app.use('/current', current);
+app.use('/forecast', forecast);
+
+app.listen(localConfig.app.port);
