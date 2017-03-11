@@ -21,7 +21,7 @@ function makeQuery(request,response, type) {
 
             responseCallback.on('end', function () {
                 var weather = JSON.parse(str);
-                response.end("<html><head></head><body><p id='str' style='visibility:hidden'>"+str+"></p><div id='img'></div><script>var data = JSON.parse(document.getElementById('str').innerHTML.substring(0,document.getElementById('str').innerHTML.length-4)); document.getElementById('img').innerHTML='<img src=\"http://openweathermap.org/img/w/' + data.weather[0].icon + '.png\">'; console.log(data); </script></body></html>");
+                response.json(str);
             });
         }
         http.request(options, callback).end(); 
