@@ -51,15 +51,15 @@ function makeQuery(request,response, type) {
             responseCallback.on('end', function () {
                 var weather = JSON.parse(str);
                 response.json(str);
-                if(type='weather'){
+                if(type=='weather'){
                     сurrentDB.put(city, str, function(err){
-                    if (err) return console.log(err);
-                });
+                        if (err) return console.log(err);
+                    });
                 }
                 else {
                     forecastDB.put(city, str, function(err){
-                    if (err) return console.log(err);
-                });
+                        if (err) return console.log(err);
+                    });
                 }
 
             });

@@ -30,6 +30,10 @@ build/Release
 node_modules
 jspm_packages
 
+/currentDB/*
+/forecastDB/*
+
+
 # Optional npm cache directory
 .npm
 
