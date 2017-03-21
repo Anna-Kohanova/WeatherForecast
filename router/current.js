@@ -4,7 +4,9 @@ var handlers = require('../handlers');
 
 router.route('/:city')
     .get(function(req, res){
-        handlers.current(req, res);
+        handlers.current(req, function(result){
+            res.json(result);
+        });
     })
 
 module.exports = router;

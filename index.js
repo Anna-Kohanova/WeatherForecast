@@ -1,6 +1,7 @@
 var express    = require('express');    
 var app        = express();                 
 var bodyParser = require('body-parser');
+var cors = require('cors');
 
 
 const localConfig = require('./config');
@@ -11,6 +12,8 @@ app.use(bodyParser.json());
 var current = require('./router/current');
 var forecast = require('./router/forecast');
 
+
+app.use(cors());
 app.use('/current', current);
 app.use('/forecast', forecast);
 

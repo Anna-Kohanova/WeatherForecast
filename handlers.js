@@ -6,43 +6,44 @@ var levelup = require('level')
  сurrentDB = levelup('./currentDB');
 forecastDB = levelup('./forecastDB');
 
-function current(request, response){
-    сurrentDB.get(request.params.city, function(err, value){
-        if (err) {
-    if (err.notFound) {
-      console.log('not found');
-        makeQuery(request,response, 'weather');
-      return;
-    }
-    // I/O or other error, pass it up the callback chain
-    return err;
-  }
-
-    response.json(value);
-    })
-}
-function forecast(request, response){
-    forecastDB.get(request.params.city, function(err, value){
-        if (err) {
-    if (err.notFound) {
-      console.log('not found');
-        makeQuery(request,response, 'forecast');
-      return;
-    }
-    // I/O or other error, pass it up the callback chain
-    return err;
-  }
-
-    response.json(value);
-    })
-}
-function makeQuery(request,response, type) {
+function current(request, callback){
     var city = request.params.city;
-            var options = {
+    сurrentDB.get(city, function(err, value){
+        if (err) {
+    if (err.notFound) {
+      console.log('not found');
+        makeQuery(city, 'weather',callback);
+      return;
+    }
+    // I/O or other error, pass it up the callback chain
+    return err;
+  }
+
+    callback(value);
+    })
+}
+function forecast(request, callback){
+     var city = request.params.city;
+    forecastDB.get(city, function(err, value){
+        if (err) {
+    if (err.notFound) {
+      console.log('not found');
+        makeQuery(city,'forecast',callback);
+      return;
+    }
+    // I/O or other error, pass it up the callback chain
+    return err;
+  }
+
+    callback(value);
+    })
+}
+function makeQuery(city, type, callback) {
+     var options = {
             host: 'api.openweathermap.org',
             path: '/data/2.5/'+type+'?q='+city+'&APPID='+config.app.appid
         };
-        var callback = function(responseCallback) {
+        var next = function(responseCallback) {
             var str='';
             responseCallback.on('data', function (chunk) {
                 str += chunk;
@@ -50,7 +51,7 @@ function makeQuery(request,response, type) {
 
             responseCallback.on('end', function () {
                 var weather = JSON.parse(str);
-                response.json(str);
+                callback(str);
                 if(type=='weather'){
                     сurrentDB.put(city, str, function(err){
                         if (err) return console.log(err);
@@ -64,7 +65,7 @@ function makeQuery(request,response, type) {
 
             });
         }
-        http.request(options, callback).end(); 
+        http.request(options, next).end(); 
     
 }
 
