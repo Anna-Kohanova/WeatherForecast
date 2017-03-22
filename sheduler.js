@@ -9,25 +9,23 @@ var jobId = crontab.scheduleJob("0 */10 * * * *", function(){ //This will call t
     console.log("It's been 10 minutes!");
     сurrentDB.createKeyStream()
         .on('data', function (data) {
-            console.log('current key=', data);
+            
             
         makeQuery(data, 'weather', function(result){
             сurrentDB.put(data, result, function(err){
-                if (err) return console.log(err);
+                if (err) throw err;
             });
-           console.log('data is update'); 
         });
             
             
         });
     forecastDB.createKeyStream()
         .on('data', function (data) {
-            console.log('forecast key=', data)
             makeQuery(data, 'forecast', function(result){
             сurrentDB.put(data, result, function(err){
-                if (err) return console.log(err);
+                if (err) throw err;
             });
-           console.log('data is update'); 
+            
         });
         });
     

@@ -4,8 +4,12 @@ var handlers = require('../handlers');
 
 router.route('/:city')
     .get(function(req, res){
-        handlers.current(req, function(result){
-            res.json(result);
+        handlers.current(req.params.city, function(err, result){
+            if(err){
+					res.writeHead(500);
+					res.end();
+			}
+			else res.json(result);
         });
     })
 
