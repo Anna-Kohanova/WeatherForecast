@@ -6,28 +6,22 @@ var levelup = require('level')
  сurrentDB = levelup('./currentDB');
 forecastDB = levelup('./forecastDB');
 
-function current(request, callback){
-    var city = request.params.city;
+function current(city, callback){
     сurrentDB.get(city, function(err, value){
         if (err) {
-    if (err.notFound) {
-      console.log('not found');
-        makeQuery(city, 'weather',callback);
-      return;
-    }
-    // I/O or other error, pass it up the callback chain
-    return err;
+            if (err.notFound) {
+                makeQuery(city, 'weather',callback);
+        }
+    callback(err);
   }
 
-    callback(value);
+    callback(null, value);
     })
 }
-function forecast(request, callback){
-     var city = request.params.city;
+function forecast(city, callback){
     forecastDB.get(city, function(err, value){
         if (err) {
     if (err.notFound) {
-      console.log('not found');
         makeQuery(city,'forecast',callback);
       return;
     }
@@ -51,15 +45,15 @@ function makeQuery(city, type, callback) {
 
             responseCallback.on('end', function () {
                 var weather = JSON.parse(str);
-                callback(str);
+                callback(null, str);
                 if(type=='weather'){
                     сurrentDB.put(city, str, function(err){
-                        if (err) return console.log(err);
+                        if (err) throw err;
                     });
                 }
                 else {
                     forecastDB.put(city, str, function(err){
-                        if (err) return console.log(err);
+                        if (err) throw err;
                     });
                 }
 
