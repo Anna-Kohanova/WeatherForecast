@@ -3,68 +3,69 @@ var url = require('url');
 var http = require('http');
 var levelup = require('level')
 
- сurrentDB = levelup('./currentDB');
+сurrentDB = levelup('./currentDB');
 forecastDB = levelup('./forecastDB');
 
-function current(city, callback){
-    сurrentDB.get(city, function(err, value){
+function current(city, callback) {
+    сurrentDB.get(city, function(err, value) {
+      if (!err){
+         return callback(null, value);
+      }
+      if (err.notFound) {
+          console.log('not found');
+          return makeQuery(city, 'weather', callback);
+      }
+            return callback(err);
+
+
+    })
+}
+
+function forecast(city, callback) {
+    forecastDB.get(city, function(err, value) {
         if (err) {
             if (err.notFound) {
-                makeQuery(city, 'weather',callback);
+                makeQuery(city, 'forecast', callback);
+            }
+            // I/O or other error, pass it up the callback chain
+            return callback(err);
         }
-    callback(err);
-  }
 
-    callback(null, value);
+        callback(null, value);
     })
 }
-function forecast(city, callback){
-    forecastDB.get(city, function(err, value){
-        if (err) {
-    if (err.notFound) {
-        makeQuery(city,'forecast',callback);
-      return;
-    }
-    // I/O or other error, pass it up the callback chain
-    return err;
-  }
 
-    callback(value);
-    })
-}
 function makeQuery(city, type, callback) {
-     var options = {
-            host: 'api.openweathermap.org',
-            path: '/data/2.5/'+type+'?q='+city+'&APPID='+config.app.appid
-        };
-        var next = function(responseCallback) {
-            var str='';
-            responseCallback.on('data', function (chunk) {
-                str += chunk;
-            });
+    var options = {
+        host: 'api.openweathermap.org',
+        path: '/data/2.5/' + type + '?q=' + city + '&APPID=' + config.app.appid
+    };
+    var next = function(responseCallback) {
+        var str = '';
+        responseCallback.on('data', function(chunk) {
+            str += chunk;
+        });
 
-            responseCallback.on('end', function () {
-                var weather = JSON.parse(str);
-                callback(null, str);
-                if(type=='weather'){
-                    сurrentDB.put(city, str, function(err){
-                        if (err) throw err;
-                    });
-                }
-                else {
-                    forecastDB.put(city, str, function(err){
-                        if (err) throw err;
-                    });
-                }
+        responseCallback.on('end', function() {
+            var weather = JSON.parse(str);
+            callback(null, str);
+            if (type == 'weather') {
+                сurrentDB.put(city, str, function(err) {
+                    if (err) throw err;
+                });
+            } else {
+                forecastDB.put(city, str, function(err) {
+                    if (err) throw err;
+                });
+            }
 
-            });
-        }
-        http.request(options, next).end(); 
-    
+        });
+    }
+    http.request(options, next).end();
+
 }
 
 
 exports.current = current;
 exports.forecast = forecast;
 exports.makeQuery = makeQuery;
-
