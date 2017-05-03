@@ -15,7 +15,7 @@ function current(city, callback) {
           console.log('not found');
           return makeQuery(city, 'weather', callback);
       }
-            return callback(err);
+    return callback(err);
 
 
     })
@@ -23,22 +23,21 @@ function current(city, callback) {
 
 function forecast(city, callback) {
     forecastDB.get(city, function(err, value) {
-        if (err) {
-            if (err.notFound) {
-                makeQuery(city, 'forecast', callback);
-            }
-            // I/O or other error, pass it up the callback chain
-            return callback(err);
+        if (!err){
+           return callback(null, value);
         }
-
-        callback(null, value);
+        if (err.notFound) {
+            console.log('not found');
+            return makeQuery(city, 'forecast', callback);
+        }
+      return callback(err);
     })
 }
 
 function makeQuery(city, type, callback) {
     var options = {
         host: 'api.openweathermap.org',
-        path: '/data/2.5/' + type + '?q=' + city + '&APPID=' + config.app.appid
+        path: '/data/2.5/' + type + '?q=' + city + '&units=metric&APPID=' + config.app.appid
     };
     var next = function(responseCallback) {
         var str = '';

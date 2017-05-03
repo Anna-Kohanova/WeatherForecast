@@ -11,7 +11,7 @@ router.route('/:city')
                 res.end();
                 return;
             }
-            console.log("kjlkj");
+            
             res.json(result);
 
         });
